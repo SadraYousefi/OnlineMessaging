@@ -30,9 +30,6 @@ export class ChatGateWay {
         this.handleJoinUniqueRoom(client)
         const { userId } = client.handshake.query
         const room = [...client.rooms][0]
-        const error = await validate(message)
-        console.log(error);
-        await this.validation(message , client , room)
         this.socketUseCases.messageHandler(+userId , message)
         const user = this.socketUseCases.findUserById(+userId)
         
@@ -79,11 +76,4 @@ export class ChatGateWay {
         client.join(roomId);
     }
 
-    async validation(item , client , room) {
-        const validation = await validate(item)
-        if(validation) {
-            console.log(validation);
-            client.to(room).emit("exception" , validation)
-        }
-    }
 }
