@@ -1,124 +1,56 @@
+# Online Messaging Application Documentation
+
+Welcome to the documentation for the Online Messaging application. This document provides an overview of the project structure, features, and important concepts.
+
 ## Table of Contents
 
-- [Summary](#nestjs-architecture)
-- [Layers](#layers)
-- [Microservices Interaction](#microservices-interaction)
+- [Project Structure](#project-structure)
+- [Features](#features)
+- [WebSocket Gateway](#websocket-gateway)
+- [Validation and Data Transfer Objects](#validation-and-data-transfer-objects)
+- [Error Handling](#error-handling)
+- [Getting Started](#getting-started)
 
-## NestJS Architecture
+## Project Structure
 
-This repository demonstrates a simple microservice that supports CRUD operations<br>
-on a books repository, following the principles of Clean Architecture.<br>
-The architecture is designed with NestJS and TypeScript to provide a good separation of<br>
-concerns and make the application flexible to changes.
-Remember that the project follows Clean Architecture principles,<br>
-which means that each layer has its own responsibility and they are loosely coupled.<br>
-This makes the project more flexible and easier to maintain or extend in the future.
+The project follows a modular structure, separating concerns into different modules:
 
-## Layers
+- **src/core**: Contains core domain entities, data transfer objects (DTOs), and shared utility functions.
+- **src/common**: Houses shared utilities, custom decorators, filters, and middleware.
+- **src/frameworks**: Provides implementations for data services, websockets, and other infrastructure-related code.
+- **src/use-cases**: Contains use cases and business logic for various application functionalities.
+- **src/modules**: Represents different modules of the application, such as user authentication, messaging, etc.
 
-The architecture is divided into several layers:
+## Features
 
-- **Entities**: The business entities of the application, such as books.<br>
-These entities are independent from external changes like services, routing or controllers.
+- User Authentication and Authorization
+- Real-time Messaging using WebSockets
+- Private Conversations
+- Message Pinning and Deletion
 
-- **Use Cases**: This layer is where the business logic of the application is centralized.<br>
-Each use case orchestrates all of the logic for a specific business use case.
+## WebSocket Gateway
 
-- **Data Service Abstraction**: This layer exposes repositories for each entity<br>
-and supports basic CRUD operations.
+The WebSocket Gateway (`ChatGateWay`) handles real-time communication between clients using WebSockets. It enables users to send and receive messages, toggle pin status, delete messages, and more.
 
-- **Presenter**: The presenter gets data from the application repository and builds a formatted response for the client.<br>
-It is implemented together with the controller in this architecture.
+## Validation and Data Transfer Objects
 
-- **Frameworks**: This layer includes all specific implementations, such as the database, monitoring, billing, error handling, etc.<br>
-The main framework used in this project is Nest.js, which is built upon Express.js.
+Validation of incoming data is crucial for maintaining data integrity. The application uses NestJS's `class-validator` library along with DTOs to validate data coming from the client. Custom decorators and validation rules are applied to ensure data consistency.
 
-<p align="center">
-  <a target="blank"><img src="./public/layers-guide.jpeg" alt="layers-guide"/></a>
-</p>
+## Error Handling
 
-## Microservices Interaction
+Custom exception filters (`WebsocketExceptionsFilter`) are employed to handle WebSocket-related exceptions. These filters catch errors and send appropriate error messages to the client, ensuring a smoother user experience.
 
-To interact with other microservices, you can use HTTP client libraries such as `Axios` or use the built-in `HttpService` provided by Nest.js.<br>
-Here's a simple example of how to make a GET request to another microservice:
+## Getting Started
 
-```
-import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
-import { map } from 'rxjs/operators';
+1. Clone the repository: `git clone https://github.com/SadraYousefi/OnlineMessaging`
+2. Install dependencies: `npm install`
+3. Configure environment variables (if necessary).
+4. Run the application: `npm run start`
 
-@Injectable()
-export class BooksService {
-  constructor(private httpService: HttpService) {}
+Refer to the specific module's documentation for more details on how to use its features.
 
-  getBook(id: string) {
-    return this.httpService
-      .get(`http://another-microservice-url.com/books/${id}`)
-      .pipe(map(response => response.data));
-  }
-}
-```
-<br>
-Here's a another example of how to use `RabbitMQ` for inter-service communication:
+---
 
-```
-import { Client, ClientProxy, Transport } from '@nestjs/microservices';
-import { Injectable } from '@nestjs/common';
+Feel free to update this documentation as your project evolves. For detailed instructions on each module and feature, consult the source code and any additional documentation you create.
 
-@Injectable()
-export class BooksService {
-  @Client({
-    transport: Transport.RMQ,
-    options: {
-        urls: ['amqp://localhost:5672'],
-        queue: 'books_queue',
-        queueOptions: { durable: false }
-    }
-  })
-  client: ClientProxy;
-
-  async getBook(id: string) {
-    const pattern = { cmd: 'get' };
-    const data = { id };
-    return this.client.send(pattern, data).toPromise();
-  }
-}
-```
-
-This `getBook` method sends a message to the `books_queue` with a pattern of `{ cmd: 'get' }` and data of `{ id }`.<br>
-The `send` method returns an Observable, so you need to convert it to a Promise with `toPromise() ` if you want to use `async/await`.
-
-On the receiving side, you can create a controller that listens to messages from the RabbitMQ queue:
-
-```
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload, Ctx, RmqContext } from '@nestjs/microservices';
-
-@Controller()
-export class BooksController {
-  @MessagePattern({ cmd: 'get' })
-  getBook(@Payload() data: any, @Ctx() context: RmqContext) {
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
-    channel.ack(originalMsg);
-
-    // Handle the request and return a response
-    return { id: data.id, title: 'A book title', author: 'An author' };
-  }
-}
-```
-
-This `getBook` method listens to messages with a pattern of `{ cmd: 'get' }`.<br>
-The `@Payload()` decorator is used to extract the data from the message,<br>
-and the `@Ctx()` decorator is used to get the context of the message.<br>
-Finally, `channel.ack(originalMsg);` is called to acknowledge the message
-
-**Note**:<br>
-The examples provided for microservices interaction<br>
-using HTTP and RabbitMQ are not directly based on this project.<br>
-They are general examples of how you can interact with other microservices<br>
-in a NestJS application using HTTP requests and RabbitMQ messaging.<br>
-
-These examples may not be directly applicable to the specific architecture<br>
-or setup of this project. They are intended to serve as a starting point or guide,<br>
-and you may need to modify or adapt them to fit the specifics of your project.
+Happy coding!

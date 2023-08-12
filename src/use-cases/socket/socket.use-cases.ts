@@ -1,41 +1,42 @@
 
 import { Injectable } from "@nestjs/common";
-import { IDataServices, Message, User } from "src/core";
+import { Message, User } from "src/core";
 import { SendMessageDto } from "src/core/dtos";
 import { ConversationUseCases } from "../conversation/conversation.use-case";
 import { mockUsers } from "usermock";
 import { Conversation } from "src/core/entities/conversation.entity";
 import { WsException } from "@nestjs/websockets";
-import { RoomService } from "../room/room.service";
 
 @Injectable()
 export class SocketUseCases {
     constructor(
         private readonly conversationUseCases: ConversationUseCases,
-        private readonly roomService : RoomService
     ){}
 
 
-    // sendMessage
     async messageHandler(userId: number , receivedMessage: SendMessageDto): Promise<Conversation> {
-        const recipient = receivedMessage.toUser ;
-        this.checkSendMessageTerms(userId , receivedMessage) ;
-
-        const conversation = await this.conversationUseCases.findConversation([userId , recipient])
-
-        const message = this.messageBuilder(userId , receivedMessage , conversation)
-        
-        if(!conversation) {
-            const participants = [userId , recipient]
-            return await this.conversationUseCases.createConversation(participants , message)
+        try {
+            const recipient = receivedMessage.toUser ;
+            this.checkSendMessageTerms(userId , receivedMessage) ;
+    
+            const conversation = await this.conversationUseCases.findConversation([userId , recipient])
+    
+            const message = this.messageBuilder(userId , receivedMessage , conversation)
+            
+            if(!conversation) {
+                const participants = [userId , recipient]
+                return await this.conversationUseCases.createConversation(participants , message)
+            }
+    
+            return await this.conversationUseCases.createMessage(conversation , message)
+        } catch (error) {
+            throw error
         }
-
-        return await this.conversationUseCases.createMessage(conversation , message)
 }
  
  
 
-    //ToggleMessage
+
     async togglePinMessage(messageId: number , userId: number , contactId: number): Promise<Conversation> {
 
         const [conversation , message] = await this.conversationUseCases.findConversationAndMessage(messageId , userId , contactId) 
@@ -47,7 +48,6 @@ export class SocketUseCases {
 
 
     
-    //DeleteMessage
     async deleteMessage(messageId: number, userId: number, contactId: number): Promise<Conversation> {
         
         const [conversation , message] = await this.conversationUseCases.findConversationAndMessage(messageId , userId , contactId) 
@@ -60,7 +60,6 @@ export class SocketUseCases {
         return await this.conversationUseCases.updateConversationMessage(conversation , message)
    }  
 
-   //ForwardMessage
    async forwardMessage(messageId: number, userId: number, contactId: number, toUserId: number): Promise<Conversation> {
 
     const [conversation , message] = await this.conversationUseCases.findConversationAndMessage(messageId , userId , contactId)

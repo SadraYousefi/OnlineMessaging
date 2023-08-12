@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { MessageDto } from "src/core/dtos";
 import { Conversation } from "src/core/entities";
-import * as idk from "./../../frameworks/data-services/mongo/model/conversation.model"
 
 @Injectable()
 export class ConversationFactoryService { 

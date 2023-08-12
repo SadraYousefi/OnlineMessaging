@@ -1,5 +1,5 @@
 import { SocketModule } from "./use-cases/socket/socket.module";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, ValidationPipe } from "@nestjs/common";
 import {
   AppController,
   BookController,
@@ -33,4 +33,5 @@ import { ConversationModule } from "./use-cases/conversation/conversation.module
   ],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+}

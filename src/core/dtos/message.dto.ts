@@ -1,16 +1,15 @@
 import { IsBoolean, IsDate, IsMongoId, IsNotEmpty, IsNumber, IsOptional} from "class-validator";
-import { UserMessageDto } from "./user-message.dto";
 import { DocumentMessage, PictureMessage, StringMessage, VoiceMessage } from "../entities";
 
 export class MessageDto {
     @IsNotEmpty()
-    @IsMongoId()
+    @IsNumber()
     id: number;
     
     body : VoiceMessage | PictureMessage | StringMessage | DocumentMessage;
 
-    @IsMongoId()
     @IsOptional()
+    @IsNumber()
     inReplyTo?: number;
     
     @IsNumber()

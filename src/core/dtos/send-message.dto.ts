@@ -1,10 +1,10 @@
-import { IsBoolean, IsDate, IsEmpty, IsNumber, IsOptional } from "class-validator";
+import { IsBoolean , IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 import { DocumentMessage, PictureMessage, StringMessage, VoiceMessage } from "../entities";
 
 export class SendMessageDto {
     
     @IsNumber()
-    @IsEmpty()
+    @IsNotEmpty()
     toUser: number ;
     
     body : VoiceMessage | PictureMessage | StringMessage | DocumentMessage;

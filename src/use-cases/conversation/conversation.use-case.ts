@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { IDataServices, Message, User } from "src/core";
 import { GetConversationMessagesDto, MessageDto } from "src/core/dtos";
 import { mockUsers } from "usermock";
