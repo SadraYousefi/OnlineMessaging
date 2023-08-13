@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class FileService {
   "../../../public"
-    private readonly uploadPath = join(__dirname , ".." , ".." , ".." , "uploads")
+    private readonly uploadPath = join(__dirname , ".." , ".." , ".." , ".." , "uploads")
 
     async writeBinaryToFile(filePath: string, binaryData: Buffer): Promise<void> {
       try {
