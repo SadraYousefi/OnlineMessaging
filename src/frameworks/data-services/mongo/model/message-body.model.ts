@@ -6,7 +6,7 @@ export class VoiceMessage {
     @Prop({type: Number , required: true})
     duration: number
     @Prop({type: String , required: true})
-    audioPath: string
+    filePath: string
 }
 
 @Schema()
@@ -14,7 +14,7 @@ export class PictureMessage {
     @Prop({type: String , required: true})
     caption: string
     @Prop({type: String , required: true})
-    imagePath: string
+    filePath: string
 }
 
 @Schema()
@@ -32,5 +32,5 @@ export class DocumentMessage {
     fileSize: number
 
     @Prop({type: String , required: true})
-    documentPath: string
+    filePath: string
 }

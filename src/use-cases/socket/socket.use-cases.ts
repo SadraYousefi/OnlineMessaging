@@ -1,36 +1,42 @@
 
 import { Injectable } from "@nestjs/common";
-import { Message, User } from "src/core";
-import { SendMessageDto } from "src/core/dtos";
+import { DocumentMessage, Message, PictureMessage, StringMessage, User, VoiceMessage } from "src/core";
+import { MessageBodyDto, SendMessageDto } from "src/core/dtos";
 import { ConversationUseCases } from "../conversation/conversation.use-case";
 import { mockUsers } from "usermock";
 import { Conversation } from "src/core/entities/conversation.entity";
 import { WsException } from "@nestjs/websockets";
+import { FileService } from "src/services/File-service/file.service";
+import { MessageTypes } from "src/core/enums";
 
 @Injectable()
 export class SocketUseCases {
     constructor(
         private readonly conversationUseCases: ConversationUseCases,
+        private readonly fileService: FileService
     ){}
 
 
-    async messageHandler(userId: number , receivedMessage: SendMessageDto): Promise<Conversation> {
+    async messageHandler(userId: number , receivedMessage: SendMessageDto): Promise<any> {
         try {
             const recipient = receivedMessage.toUser ;
             this.checkSendMessageTerms(userId , receivedMessage) ;
-    
-            const conversation = await this.conversationUseCases.findConversation([userId , recipient])
-    
-            const message = this.messageBuilder(userId , receivedMessage , conversation)
-            
-            if(!conversation) {
-                const participants = [userId , recipient]
-                return await this.conversationUseCases.createConversation(participants , message)
+
+            let conversation = await this.conversationUseCases.findOrCreateConversation([userId , recipient])
+
+            const message: Message = await this.messageBuilder(userId , receivedMessage , conversation)
+            await this.conversationUseCases.createMessage(conversation , message)
+
+            let data = message.body as VoiceMessage ;
+                if(data?.filePath){
+                    return data.filePath
+            }   else {
+                let data = message.body as StringMessage
+                return data?.text
             }
-    
-            return await this.conversationUseCases.createMessage(conversation , message)
+            
         } catch (error) {
-            throw error
+            throw Error(error)
         }
 }
  
@@ -55,39 +61,92 @@ export class SocketUseCases {
         if(message.isDeleted == true)
             throw new WsException("This message is already deleted")
 
+        
         message.isDeleted = true ;
 
         return await this.conversationUseCases.updateConversationMessage(conversation , message)
    }  
 
-   async forwardMessage(messageId: number, userId: number, contactId: number, toUserId: number): Promise<Conversation> {
+   async forwardMessage(messageId: number, userId: number, contactId: number, toUserId: number): Promise<any> {
 
     const [conversation , message] = await this.conversationUseCases.findConversationAndMessage(messageId , userId , contactId)
-
     
     if(message.isDeleted == true)
         throw new WsException("This message is already deleted")
 
-        
-    const forwardedMessage: SendMessageDto = {
-        toUser: toUserId ,
-        body: message.body ,
-        isDeleted: false ,
-        isPinned: false ,
+        let data = message.body as VoiceMessage ;
+        if(data?.filePath){
+            return data.filePath
+    }   else {
+        let data = message.body as StringMessage
+        return data?.text
     }
-    return await this.messageHandler(userId , forwardedMessage)
-    
    }
+ 
 
-
-    messageBuilder(fromUser: number , receivedMessage: SendMessageDto , conversation: Conversation): Message {
+    async messageBuilder(fromUser: number , receivedMessage: SendMessageDto , conversation: Conversation): Promise<Message> {
 
         const id = this.messageIdGenerator(conversation)
         const date = new Date() ;
-        const message: Message = {id , fromUser , date , ...receivedMessage }
+
+        const messageBody = receivedMessage.body ; 
+        const bodyData: StringMessage | PictureMessage | VoiceMessage | DocumentMessage = await this.saveMessage(messageBody , conversation.participants)
+
+        const {body , ...rest} = receivedMessage
+        const message: Message = {id , fromUser , date , body : bodyData , ...rest }
         return message ;
     }
 
+    async saveMessage(messageBody: MessageBodyDto , pathArg: number[]) {
+
+        const data = Buffer.from(messageBody.data , "base64")
+        
+        if(messageBody.type == MessageTypes.string) {
+            const text = data.toString("utf8")
+            let message: StringMessage ;
+            return message = {
+                text
+            }
+        }
+
+        if(!messageBody.extName)
+            throw new WsException("this object should have extname for the file")
+
+        const filePath = this.fileService.filePathGenerator(pathArg , messageBody.extName) ;
+
+        if(messageBody.type == MessageTypes.picture) {
+            let message: PictureMessage ;
+            this.fileService.writeBinaryToFile(filePath , data)
+            return message = {
+                caption: messageBody?.caption ,
+                filePath
+            }
+        }
+
+        if(messageBody.type == MessageTypes.document) {
+            let message: DocumentMessage ;
+            this.fileService.writeBinaryToFile(filePath , data)
+            const fileSize = Buffer.from(messageBody.data).byteLength ;
+            return message = {
+                title: messageBody?.caption ,
+                fileSize ,
+                filePath
+            } 
+
+        }
+
+
+        if(messageBody.type == MessageTypes.voice) {
+            let message: VoiceMessage ;
+            this.fileService.writeBinaryToFile(filePath , data)
+            const fileSize = Buffer.from(messageBody.data).byteLength ;
+            return message = {
+                duration: fileSize  , 
+                filePath
+            } 
+
+        }
+    } 
 
     messageIdGenerator(conversation: Conversation): number { 
 

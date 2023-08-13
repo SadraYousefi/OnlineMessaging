@@ -5,11 +5,10 @@ import { Conversation } from "src/core/entities";
 @Injectable()
 export class ConversationFactoryService { 
 
-    createConversation(participants: number[] , message: MessageDto): Conversation {
+    createConversation(participants: number[]): Conversation {
         const newConversation = new Conversation() ;
         newConversation.participants = participants ;
         newConversation.messages = []
-        newConversation.messages.push(message)
         return newConversation
     }
 

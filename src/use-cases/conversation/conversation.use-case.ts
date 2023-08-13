@@ -14,9 +14,9 @@ export class ConversationUseCases {
         private readonly conversationFactory: ConversationFactoryService,
     ){}
 
-    createConversation(participants: number[] , message: MessageDto): Promise<Conversation>{
+    createConversation(participants: number[]): Promise<Conversation>{
 
-        const conversation = this.conversationFactory.createConversation(participants , message)
+        const conversation = this.conversationFactory.createConversation(participants)
         return this.dataService.conversation.create(conversation) ;
     }
 
@@ -45,6 +45,16 @@ export class ConversationUseCases {
         return [conversation , message]
        }
     
+
+    async findOrCreateConversation(participants: number[]): Promise<Conversation> {
+        let conversation =  await this.findConversation(participants)
+        if(!conversation) {
+            return await this.createConversation(participants)
+        }
+
+        return conversation
+    }   
+
 
     async getConversationMessages(body: GetConversationMessagesDto): Promise<Message[]> {
         const conversation = await this.findConversation([+body.userId , +body.contactId])        

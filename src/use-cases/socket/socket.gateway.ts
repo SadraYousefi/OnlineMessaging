@@ -2,7 +2,7 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server , Socket} from 'socket.io'
 import { SendMessageDto } from "src/core/dtos";
 import { SocketUseCases } from "./socket.use-cases";
-import { UseFilters } from "@nestjs/common";
+import { UseFilters, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ToggleDto } from "src/core/dtos/toggle.dto";
 import { ForwardMessageDto } from "src/core/dtos/forward-message.dto";
 import { RoomService } from "../room/room.service";
@@ -16,6 +16,7 @@ import { validate } from "class-validator";
 })
 
 @UseFilters(WebsocketExceptionsFilter)
+@UsePipes(new ValidationPipe({whitelist: true}))
 export class ChatGateWay {
 
     constructor(
@@ -25,15 +26,17 @@ export class ChatGateWay {
 
     @SubscribeMessage("message")
     async sendMessage(@ConnectedSocket() client: Socket , @MessageBody() message: SendMessageDto) {
+
+
         
         client.handshake.query.recipient = String(message.toUser)
         this.handleJoinUniqueRoom(client)
         const { userId } = client.handshake.query
         const room = [...client.rooms][0]
-        this.socketUseCases.messageHandler(+userId , message)
+        const finalMessage = await this.socketUseCases.messageHandler(+userId , message)
         const user = this.socketUseCases.findUserById(+userId)
         
-        client.to(room).emit("message" , `${user.firstName} : ${message.body}`)
+        client.to(room).emit("message" , `${user.firstName} : ${finalMessage}`)
     }
    
     @SubscribeMessage("togglePin")
@@ -54,14 +57,18 @@ export class ChatGateWay {
         const {userId} = client.handshake.query ;
         this.socketUseCases.deleteMessage(+body.messageId , +userId , +body.contactId)
         const room = [...client.rooms][0]
-        client.to(room).emit("deleteMessage" , `messageId: ${body.messageId} has been deleted`)
+        client.to(room).emit("message" , `messageId: ${body.messageId} has been deleted`)
     }
 
     @SubscribeMessage("forwardMessage")
-    forwardMessage(@ConnectedSocket() client: Socket , @MessageBody() body: ForwardMessageDto) {
+     async forwardMessage(@ConnectedSocket() client: Socket , @MessageBody() body: ForwardMessageDto) {
+         client.handshake.query.recipient = String(body.toUserId)
+         this.handleJoinUniqueRoom(client)
         const {userId} = client.handshake.query ;
-        this.socketUseCases.forwardMessage(+body.messageId , +userId , +body.contactId , +body.toUserId)
-    }
+         const response = await this.socketUseCases.forwardMessage(+body.messageId , +userId , +body.contactId , +body.toUserId)
+         const room = [...client.rooms][0]
+         client.to(room).emit("message" , ` ${response}  ---forwarded to you !`)
+    } 
 
     @SubscribeMessage("joinRoom")
     handleJoinUniqueRoom(@ConnectedSocket() client:Socket) {

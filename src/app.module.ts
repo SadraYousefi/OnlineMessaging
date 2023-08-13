@@ -1,5 +1,5 @@
 import { SocketModule } from "./use-cases/socket/socket.module";
-import { MiddlewareConsumer, Module, ValidationPipe } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import {
   AppController,
   BookController,

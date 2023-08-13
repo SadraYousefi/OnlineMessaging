@@ -1,8 +1,8 @@
 import {User} from './user.entity'
-
+ 
 export class VoiceMessage {
     duration: number ;
-    audioPath: string ;
+    filePath: string ;
 }
 
 export class StringMessage {
@@ -10,14 +10,14 @@ export class StringMessage {
 }
 
 export class PictureMessage {
-    caption: string ;
-    imagePath: string ;
+    caption?: string ;
+    filePath: string ;
 }
 
 export class DocumentMessage {
     title: string ;
     fileSize: number ;
-    documentPath: string ;
+    filePath: string ;
 }
 
 
