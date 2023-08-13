@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber } from "class-validator";
 
 export class ToggleDto {
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  messageId: string;
-
-  @IsString()
+  messageId: number;
+  
+  @IsNumber()
   @IsNotEmpty()
-  contactId: string;
+  contactId: number;
 }

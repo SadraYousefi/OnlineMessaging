@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { MessageDto } from "src/core/dtos";
-import { Conversation } from "src/core/entities";
+import { Conversation, MessageDto } from "src/core";
+
 
 @Injectable()
 export class ConversationFactoryService { 

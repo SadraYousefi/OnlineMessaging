@@ -3,12 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { IDataServices } from '../../../core';
 import { DATA_BASE_CONFIGURATION } from '../../../configuration';
 import {
-  Author,
-  AuthorSchema,
-  Book,
-  BookSchema,
-  Genre,
-  GenreSchema,
   Conversation,
   ConversationSchema,
 } from './model';
@@ -17,9 +11,6 @@ import { MongoDataServices } from './mongo-data-services.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Author.name, schema: AuthorSchema },
-      { name: Book.name, schema: BookSchema },
-      { name: Genre.name, schema: GenreSchema },
       { name: Conversation.name , schema : ConversationSchema} ,
     ]),
     MongooseModule.forRoot(DATA_BASE_CONFIGURATION.mongoConnectionString),

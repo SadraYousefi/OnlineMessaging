@@ -1,9 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { IDataServices, Message, User } from "src/core";
-import { GetConversationMessagesDto, MessageDto } from "src/core/dtos";
+import { IDataServices, Message, User , MessageDto , GetConversationMessagesDto , Conversation} from "src/core";
 import { mockUsers } from "usermock";
 import { ConversationFactoryService } from "./conversation.factory";
-import { Conversation } from "src/core/entities/conversation.entity";
 import { WsException } from "@nestjs/websockets";
 
 @Injectable()

@@ -13,7 +13,7 @@ async function bootstrap() {
     disableErrorMessages: false,
     forbidNonWhitelisted: true,
   }));
-  
+
   await app.listen(3000);
 }
 bootstrap();

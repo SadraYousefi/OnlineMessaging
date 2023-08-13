@@ -8,7 +8,7 @@ import { FileModule } from "src/services/File-service/file.module";
 
 @Module({
   imports : [DataServicesModule , ConversationModule , RoomModule , FileModule] ,
-  providers: [SocketUseCases , ChatGateWay ],
+  providers: [SocketUseCases , ChatGateWay],
   exports: [SocketUseCases],
 })
 export class SocketModule {}
