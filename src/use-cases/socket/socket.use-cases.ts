@@ -46,10 +46,10 @@ export class SocketUseCases {
 
       let data = message.body as VoiceMessage;
       if (data?.filePath) {
-        return data.filePath;
+        return [data.filePath , message.id]
       } else {
         let data = message.body as StringMessage;
-        return data?.text;
+        return [data?.text , message.id];
       }
     } catch (error) {
       throw Error(error);
@@ -226,5 +226,18 @@ export class SocketUseCases {
   checkRecipientIsUserContact(userId: number, recipientId: number): Boolean {
     const user = this.findUserById(userId);
     return user.contacts.find((item) => item == recipientId) ? true : false;
+  }
+
+  findUserContacts(userId: number): User[] {
+
+    const user = this.findUserById(userId) ;
+    const contacts = user.contacts ;
+    const contactsDetails = []
+    mockUsers.forEach(item => {
+      if(contacts.includes(item.id))
+        contactsDetails.push(item)
+    })
+    
+    return contactsDetails
   }
 }

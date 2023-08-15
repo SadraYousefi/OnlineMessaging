@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatRoom</title>
+    <link rel="stylesheet" href="http://localhost:3000/style.css">
+</head>
+<body>
+
+
+
+<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1,maximum-scale=1">
+<div class="container">
+  <div class="menu">
+<div class="friends-container">
+
+{{#each contacts}}
+  <span onclick= redirectChat({{this.id}})>{{this.firstName}}</span>    
+{{/each}}
+
+  <span style="background-color: red;" onclick=redirectToUrl("/view/chat")>back to chats</span>    
+
+
+</div><!--end friends-container-->
+</div><!--end menu-->
+<div class="chatbox">
+  <div class="conversation"></div>
+
+</div><!--end chatbox-->
+</div><!--end container-->
+
+
+
+
+<script>
+
+  const redirectChat = (userId) => {
+    console.log("heh")
+    window.location.replace(`/view/createConversation?userId=${userId}`)
+  }
+  const redirectToUrl = (url) => {
+    window.location.replace(url)
+  }
+</script>
+</body>
+</html>

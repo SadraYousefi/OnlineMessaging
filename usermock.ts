@@ -8,7 +8,7 @@ export const mockUsers = [
       lastName: 'Doe',
       email: 'john.doe@example.com',
       age: 28,
-      contacts: [1 , 2 , 3 , 4 , 5]
+      contacts: [ 2 , 3 , 4 , 5]
     },
     {
       id: 2,
@@ -17,7 +17,7 @@ export const mockUsers = [
       lastName: 'Smith',
       email: 'jane.smith@example.com',
       age: 32,
-      contacts: [1 , 2 , 3 , 4 , 5]
+      contacts: [1  , 3 , 4 , 5]
     },
     {
       id: 3,
@@ -26,7 +26,7 @@ export const mockUsers = [
       lastName: 'Johnson',
       email: 'michael.johnson@example.com',
       age: 24,
-      contacts: [1 , 2 , 3 , 4 , 5]
+      contacts: [1 , 2 , 4 , 5]
     },
     {
       id: 4,
@@ -35,7 +35,7 @@ export const mockUsers = [
       lastName: 'Brown',
       email: 'emily.brown@example.com',
       age: 29,
-      contacts: [1 , 2 , 3 , 4 , 5]
+      contacts: [1 , 2 , 3 , 5]
     },
     {
       id: 5,
@@ -44,7 +44,7 @@ export const mockUsers = [
       lastName: 'Williams',
       email: 'david.williams@example.com',
       age: 35,
-      contacts: [1 , 2 , 3 , 4 , 5]
+      contacts: [1 , 2 , 3 , 4]
     },
   ];
   

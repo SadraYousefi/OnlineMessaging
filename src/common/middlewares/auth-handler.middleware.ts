@@ -7,7 +7,6 @@ import { Request, Response, NextFunction } from 'express';
 export class AuthHandlerMiddleWare implements NestMiddleware {
 
   use(reqOrSocket: Socket | Request, _: Response, next: NextFunction) { 
-    console.log("called");
     if (reqOrSocket instanceof Socket) {
       return this.handleSocket(reqOrSocket, next);
     } else {
